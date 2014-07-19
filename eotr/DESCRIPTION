@@ -1,0 +1,16 @@
+Package: eotr
+Title: What the package does (short line)
+Version: 0.1
+Authors@R: "Christopher Peters <cpeter9@gmail.com> [aut, cre]"
+Description: Analyze I-95 data!
+Depends:
+    R (>= 3.1.0)
+Imports:
+    data.table,
+    stringr,
+    reshape2,
+    ggplot2
+Suggests:
+    testthat
+License: MIT
+LazyData: true
