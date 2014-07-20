@@ -6,6 +6,7 @@ Description: Analyze I-95 data!
 Depends:
     R (>= 3.1.0),
     data.table,
+    dplyr,
     stringr,
     reshape2,
     ggplot2

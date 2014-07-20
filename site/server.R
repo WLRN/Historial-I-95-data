@@ -1,11 +1,12 @@
 library(shiny)
 library(eotr)
 
-show_selection_based_on <- function(input_selection, item_to_test) {
+show_selection_based_on <- function(input_selection, item_to_test, comparison) {
   if (grepl("All ", input_selection)) {
-    return(rep(TRUE, length(item_to_test)))
+    return(rep(comparison, length(item_to_test)))
   } else {
-    return(item_to_test %in% input_selection)
+    return(ifelse(item_to_test %in% input_selection,
+                  comparison, NA))
   }
 }
 
