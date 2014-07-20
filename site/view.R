@@ -4,11 +4,16 @@ output$route_types <- renderUI({
     for_each_series_for_the_type_of  <- function(x) {
       paste(x, "_comparison_order_num_", i, sep = "")
     }
-        selectInput(for_each_series_for_the_type_of("route_type"),
-                    "Choose route type: ",
-                    choices = c("All route types",
-                                sort(unique(munged_data$route_type
-                                ))))
+    start_route_type <- isolate(input[[for_each_series_for_the_type_of("route_type")]])
+    if (is.null(start_route_type)) {
+      start_route_type <- "All route types"
+    }
+    selectInput(for_each_series_for_the_type_of("route_type"),
+                "Choose route type: ",
+                choices = c("All route types",
+                            sort(unique(munged_data$route_type
+                            ))),
+                selected = start_route_type)
   })
 })
 
@@ -18,11 +23,16 @@ output$routes <- renderUI({
     for_each_series_for_the_type_of  <- function(x) {
       paste(x, "_comparison_order_num_", i, sep = "")
     }
+    start_route <- isolate(input[[for_each_series_for_the_type_of("route")]])
+    if (is.null(start_route)) {
+      start_route <- "All routes"
+    }
     selectInput(for_each_series_for_the_type_of("route"),
                 "Choose route: ",
                 choices = c("All routes",
                             sort(unique(munged_data$route[munged_data$route_type == input[[for_each_series_for_the_type_of("route_type")]]]
-                            ))))
+                            ))),
+                selected = start_route)
   })
 })
 
@@ -32,11 +42,16 @@ output$lanes <- renderUI({
     for_each_series_for_the_type_of  <- function(x) {
       paste(x, "_comparison_order_num_", i, sep = "")
     }
+    start_lane <- isolate(input[[for_each_series_for_the_type_of("lane")]])
+    if (is.null(start_lane)) {
+      start_lane <- "All lanes"
+    }
     selectInput(for_each_series_for_the_type_of("lane"),
                 "Choose lane: ",
                 choices = c("All lanes",
                             sort(unique(munged_data$lane[munged_data$route == input[[for_each_series_for_the_type_of("route")]]]
-                            ))))
+                            ))),
+                selected = start_lane)
   })
 })
 
@@ -48,7 +63,8 @@ validated_data <- reactive({
 })
 
 output$trafficPlot <- renderPlot({
-  if(is.null(validated_data()))
+  if(is.null(input[["lane_comparison_order_num_1"]]) |
+       is.null(validated_data()))
     return()
 
   isolate({
