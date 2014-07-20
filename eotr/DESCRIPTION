@@ -9,7 +9,8 @@ Depends:
     dplyr,
     stringr,
     reshape2,
-    ggplot2
+    ggplot2,
+    ggthemes
 Suggests:
     testthat
 License: MIT
