@@ -4,8 +4,7 @@ Version: 0.1
 Authors@R: "Christopher Peters <cpeter9@gmail.com> [aut, cre]"
 Description: Analyze I-95 data!
 Depends:
-    R (>= 3.1.0)
-Imports:
+    R (>= 3.1.0),
     data.table,
     stringr,
     reshape2,
