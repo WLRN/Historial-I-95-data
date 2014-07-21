@@ -1,4 +1,4 @@
-output$route_types <- renderUI({
+output$comparison_selections <- renderUI({
   number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
   inputs <- lapply(1:number_of_comparisons, function(i) {
     for_each_series_for_the_type_of  <- function(x) {
@@ -8,50 +8,34 @@ output$route_types <- renderUI({
     if (is.null(start_route_type)) {
       start_route_type <- "All route types"
     }
-    selectInput(for_each_series_for_the_type_of("route_type"),
-                "Choose route type: ",
-                choices = c("All route types",
-                            sort(unique(munged_data$route_type
-                            ))),
-                selected = start_route_type)
-  })
-})
-
-output$routes <- renderUI({
-  number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
-  inputs <- lapply(1:number_of_comparisons, function(i) {
-    for_each_series_for_the_type_of  <- function(x) {
-      paste(x, "_comparison_order_num_", i, sep = "")
-    }
     start_route <- isolate(input[[for_each_series_for_the_type_of("route")]])
     if (is.null(start_route)) {
       start_route <- "All routes"
-    }
-    selectInput(for_each_series_for_the_type_of("route"),
-                "Choose route: ",
-                choices = c("All routes",
-                            sort(unique(munged_data$route[munged_data$route_type == input[[for_each_series_for_the_type_of("route_type")]]]
-                            ))),
-                selected = start_route)
-  })
-})
-
-output$lanes <- renderUI({
-  number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
-  inputs <- lapply(1:number_of_comparisons, function(i) {
-    for_each_series_for_the_type_of  <- function(x) {
-      paste(x, "_comparison_order_num_", i, sep = "")
     }
     start_lane <- isolate(input[[for_each_series_for_the_type_of("lane")]])
     if (is.null(start_lane)) {
       start_lane <- "All lanes"
     }
+    fluidRow(
+    selectInput(for_each_series_for_the_type_of("route_type"),
+                "Choose route type: ",
+                choices = c("All route types",
+                            sort(unique(munged_data$route_type
+                            ))),
+                selected = start_route_type),
+    selectInput(for_each_series_for_the_type_of("route"),
+                "Choose route: ",
+                choices = c("All routes",
+                            sort(unique(munged_data$route[munged_data$route_type == input[[for_each_series_for_the_type_of("route_type")]]]
+                            ))),
+                selected = start_route),
     selectInput(for_each_series_for_the_type_of("lane"),
                 "Choose lane: ",
                 choices = c("All lanes",
                             sort(unique(munged_data$lane[munged_data$route == input[[for_each_series_for_the_type_of("route")]]]
                             ))),
                 selected = start_lane)
+    )
   })
 })
 
@@ -82,15 +66,14 @@ output$trafficPlot <- renderPlot({
 })
 
 graph_controller <- reactive({
-  if(is.null(input[["route_type_comparison_order_num_1"]]) &
-       is.null(input[["route_comparison_order_num_1"]]) &
-       is.null(input[["lane_comparison_order_num_1"]]) &
-       input$add_another_comparison == 0 &
-       input$remove_another_comparison == 0)
+number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
+if(sapply(1:number_of_comparisons, function(comparisons) {
+    is.null(input[[paste("route_type_comparison_order_num_", comparisons, sep = "")]]) &
+      is.null(input[[paste("route_comparison_order_num_", comparisons, sep = "")]]) &
+      is.null(input[[paste("lane_comparison_order_num_", comparisons, sep = "")]])
+  }))
     return()
-
   isolate({
-    number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
     for_each_series_for_the_type_of  <- function(some_type, and_row) {
       input[[paste(some_type, "_comparison_order_num_", and_row, sep = "")]]
     }
