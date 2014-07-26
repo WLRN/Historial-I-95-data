@@ -10,7 +10,11 @@ Depends:
     stringr,
     reshape2,
     ggplot2,
-    ggthemes
+    ggthemes,
+    scales,
+    grid
+Imports:
+    grid
 Suggests:
     testthat
 License: MIT
