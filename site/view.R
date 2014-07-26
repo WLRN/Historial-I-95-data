@@ -67,11 +67,11 @@ output$trafficPlot <- renderPlot({
 
 graph_controller <- reactive({
 number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
-if(sapply(1:number_of_comparisons, function(comparisons) {
+if(all(sapply(1:number_of_comparisons, function(comparisons) {
     is.null(input[[paste("route_type_comparison_order_num_", comparisons, sep = "")]]) &
       is.null(input[[paste("route_comparison_order_num_", comparisons, sep = "")]]) &
       is.null(input[[paste("lane_comparison_order_num_", comparisons, sep = "")]])
-  }))
+  })))
     return()
   isolate({
     for_each_series_for_the_type_of  <- function(some_type, and_row) {
@@ -108,7 +108,8 @@ if(sapply(1:number_of_comparisons, function(comparisons) {
     data_to_show <- as.data.frame(rbindlist(data_to_show))
     data_to_show <- melt(data_to_show[ , c("comparison", "time_of_day", "speed", "volume", "occupancy")],
                          c("comparison", "time_of_day"))
-    return(data_to_show)
+    return(list(data_to_show = data_to_show, # maybe as.list would take care of weird name req. here?
+                number_of_comparisons = number_of_comparisons))
   })
 })
 
