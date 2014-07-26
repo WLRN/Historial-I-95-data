@@ -41,9 +41,9 @@ output$comparison_selections <- renderUI({
 
 validated_data <- reactive({
   validate(
-    need(length(graph_controller()$value) > 50, "Darn! Not enough data available to plot for this lane.")
+    need(length(graph_controller()[["data_to_show"]]$value) > 50, "Darn! Not enough data available to plot for this lane.")
   )
-  graph_controller()
+  return(graph_controller()[["data_to_show"]])
 })
 
 output$trafficPlot <- renderPlot({
