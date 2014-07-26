@@ -1,5 +1,7 @@
-library(shiny)
-library(eotr)
+require(shiny)
+require(eotr)
+require(rCharts)
+require(data.table)
 
 show_selection_based_on <- function(input_selection, item_to_test, comparison) {
   if (grepl("All ", input_selection)) {

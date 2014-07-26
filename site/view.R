@@ -17,24 +17,24 @@ output$comparison_selections <- renderUI({
       start_lane <- "All lanes"
     }
     fluidRow(
-    selectInput(for_each_series_for_the_type_of("route_type"),
-                "Choose route type: ",
-                choices = c("All route types",
-                            sort(unique(munged_data$route_type
-                            ))),
-                selected = start_route_type),
-    selectInput(for_each_series_for_the_type_of("route"),
-                "Choose route: ",
-                choices = c("All routes",
-                            sort(unique(munged_data$route[munged_data$route_type == input[[for_each_series_for_the_type_of("route_type")]]]
-                            ))),
-                selected = start_route),
-    selectInput(for_each_series_for_the_type_of("lane"),
-                "Choose lane: ",
-                choices = c("All lanes",
-                            sort(unique(munged_data$lane[munged_data$route == input[[for_each_series_for_the_type_of("route")]]]
-                            ))),
-                selected = start_lane)
+      selectInput(for_each_series_for_the_type_of("route_type"),
+                  "Choose route type: ",
+                  choices = c("All route types",
+                              sort(unique(munged_data$route_type
+                              ))),
+                  selected = start_route_type),
+      selectInput(for_each_series_for_the_type_of("route"),
+                  "Choose route: ",
+                  choices = c("All routes",
+                              sort(unique(munged_data$route[munged_data$route_type == input[[for_each_series_for_the_type_of("route_type")]]]
+                              ))),
+                  selected = start_route),
+      selectInput(for_each_series_for_the_type_of("lane"),
+                  "Choose lane: ",
+                  choices = c("All lanes",
+                              sort(unique(munged_data$lane[munged_data$route == input[[for_each_series_for_the_type_of("route")]]]
+                              ))),
+                  selected = start_lane)
     )
   })
 })
@@ -46,52 +46,48 @@ validated_data <- reactive({
   return(graph_controller()[["data_to_show"]])
 })
 
-output$trafficPlot <- renderPlot({
+construct_gam_smooths <- reactive({
   if(is.null(input[["lane_comparison_order_num_1"]]) |
        is.null(validated_data()))
     return()
+  input_data <- tbl_df(validated_data())
+  input_data <- input_data[sample(1:length(input_data$value),
+                                  200000, replace = T), ]
+  resolution <- seq(0, 24, 1/10)
+  input_data <- input_data %>%
+    group_by(comparison, variable) %>%
+    do(fits = as.data.frame(list(
+      comparison = rep(unique(.$comparison), length(resolution)),
+      xvals = resolution,
+      variable = rep(unique(as.character(.$variable)), length(resolution)),
+      preds = predict.gam(mgcv::gam(value ~ s(time_of_day,
+                                              bs = "ps"),
+                                    data = .),
+                          newdata = data.frame(list(time_of_day = resolution)),
+                          type = "response")), stringsAsFactors = F))
+  input_data <- rbindlist(input_data$fits)
+  input_data
+})
 
-  isolate({
-    print(
-      ggplot() +
-        annotate("rect",
-                 xmin = 9,
-                 xmax = 17,
-                 ymin = 0,
-                 ymax=Inf, alpha=0.2, fill="black") +
-        geom_smooth(data = validated_data(),
-                    aes(x = time_of_day,
-                        y = value,
-                        colour = factor(comparison)),
-                    size = 2,
-                    method = "gam",
-                    formula = y ~ s(x, bs = "ps")) +
-        scale_colour_discrete(name = "Routes shown ",
-                              labels = sapply(1:graph_controller()[["number_of_comparisons"]], function(x) {
-                                paste(input[[paste("route_type_comparison_order_num_", x, sep = "")]],
-                                      input[[paste("route_comparison_order_num_", x, sep = "")]],
-                                      input[[paste("lane_comparison_order_num_", x, sep = "")]], sep = ", ")
-          })) +
-        facet_grid(variable ~ ., scales = "free_y") +
-        geom_vline(xintercept = 12, colour = "black") +
-        scale_x_continuous(breaks = 0:24,
-                           limits = c(0, 24),
-                           labels = function(x) { ifelse(x %% 3 == 0,
-                                                         format(as.POSIXct(paste("2014-01-01 ", x, ":00:00", sep = ""),
-                                                                           tz = "America/New_York"),
-                                                                "%l%n%p"),
-                                                         format(as.POSIXct(paste("2014-01-01 ", x, ":00:00", sep = ""),
-                                                                           tz = "America/New_York"),
-                                                                "%l%n")) }
-                           ) +
-        theme_fivethirtyeight_statwonk()
-    )
-  })
-}, height = 1080, width = 1500)
+output$speedPlot <- renderChart({
+  p <- nPlot(preds ~ xvals,
+              data = subset(construct_gam_smooths(), variable == "speed"),
+              group = "comparison",
+              type = 'lineChart')
+  p$yAxis(axisLabel = 'Miles per Hour')
+  p$xAxis(axisLabel = 'Time of Day')
+  p$chart(margin = list(left = 100),
+          forceY = c(0, 80),
+          useInteractiveGuideline = TRUE
+  )
+  p$addParams(dom = 'speedPlot')
+  p$show("inline", include_assets = FALSE)
+  return(p)
+})
 
 graph_controller <- reactive({
-number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
-if(all(sapply(1:number_of_comparisons, function(comparisons) {
+  number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
+  if(all(sapply(1:number_of_comparisons, function(comparisons) {
     is.null(input[[paste("route_type_comparison_order_num_", comparisons, sep = "")]]) &
       is.null(input[[paste("route_comparison_order_num_", comparisons, sep = "")]]) &
       is.null(input[[paste("lane_comparison_order_num_", comparisons, sep = "")]])

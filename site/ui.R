@@ -1,4 +1,4 @@
-library(shiny)
+require(shiny); require(rCharts);
 shinyUI(fluidPage(
   titlePanel("End of the Road"),
   sidebarLayout(
@@ -7,9 +7,14 @@ shinyUI(fluidPage(
       hr(),
       actionLink("add_another_comparison", "Add ..."),
       actionLink("remove_another_comparison", "Remove ..."),
-    width = 3),
+      width = 3),
     mainPanel(
-      plotOutput("trafficPlot")
+      fluidRow(
+        showOutput("speedPlot", "nvd3")
+      ),
+      fluidRow(
+        showOutput("volumeOccupancyPlot", "nvd3")
+      )
     )
   )
 ))

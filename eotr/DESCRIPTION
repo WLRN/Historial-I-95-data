@@ -12,7 +12,8 @@ Depends:
     ggplot2,
     ggthemes,
     scales,
-    grid
+    grid,
+    rCharts
 Imports:
     grid
 Suggests:
