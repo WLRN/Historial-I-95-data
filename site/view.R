@@ -54,16 +54,40 @@ output$trafficPlot <- renderPlot({
   isolate({
     print(
       ggplot() +
+        annotate("rect",
+                 xmin = 9,
+                 xmax = 17,
+                 ymin = 0,
+                 ymax=Inf, alpha=0.2, fill="black") +
         geom_smooth(data = validated_data(),
                     aes(x = time_of_day,
                         y = value,
                         colour = factor(comparison)),
+                    size = 2,
                     method = "gam",
                     formula = y ~ s(x, bs = "ps")) +
-        facet_grid(variable ~ ., scales = "free_y")
+        scale_colour_discrete(name = "Routes shown ",
+                              labels = sapply(1:graph_controller()[["number_of_comparisons"]], function(x) {
+                                paste(input[[paste("route_type_comparison_order_num_", x, sep = "")]],
+                                      input[[paste("route_comparison_order_num_", x, sep = "")]],
+                                      input[[paste("lane_comparison_order_num_", x, sep = "")]], sep = ", ")
+          })) +
+        facet_grid(variable ~ ., scales = "free_y") +
+        geom_vline(xintercept = 12, colour = "black") +
+        scale_x_continuous(breaks = 0:24,
+                           limits = c(0, 24),
+                           labels = function(x) { ifelse(x %% 3 == 0,
+                                                         format(as.POSIXct(paste("2014-01-01 ", x, ":00:00", sep = ""),
+                                                                           tz = "America/New_York"),
+                                                                "%l%n%p"),
+                                                         format(as.POSIXct(paste("2014-01-01 ", x, ":00:00", sep = ""),
+                                                                           tz = "America/New_York"),
+                                                                "%l%n")) }
+                           ) +
+        theme_fivethirtyeight_statwonk()
     )
   })
-})
+}, height = 1080, width = 1500)
 
 graph_controller <- reactive({
 number_of_comparisons <- 1 + input$add_another_comparison - input$remove_another_comparison
