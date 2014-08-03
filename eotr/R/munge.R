@@ -1,17 +1,19 @@
 munge_data <- function(input_data) {
-  dt <- as.data.table(input_data)
-  dt$timestamp <- as.POSIXct(dt$timestamp, tz = "America/New_York")
-  dt$day_of_week <- factor(weekdays(dt$timestamp),
-                           levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
-                                      "Friday", "Saturday"))
-  dt$time_of_day <- (as.numeric(format(dt$timestamp, "%H")) +
-                       (as.numeric(format(dt$timestamp, "%M")) / 60) +
-                         (as.numeric(format(dt$timestamp, "%S")) / 60 / 60))
-  cbind(colsplit(dt$lane_id, "-",
-                 names= c("detector_prefix",
-                          "route",
-                          "route_type",
-                          "lane")),
-        dt[ ,c(1:3) := rep(NULL, 3),])
+  d <- data.table(input_data)
+  d$day_of_week <- factor(weekdays(d$timestamp <- as.POSIXct(d$timestamp, tz = "UTC", origin = "1970-01-01")),
+                          levels = c("Sunday", "Monday", "Tuesday",
+                                     "Wednesday", "Thursday",
+                                     "Friday", "Saturday"))
+
+  trim.leading <- function (x)  sub("^\\s+", "", x)
+  d$hour_of_day <- trim.leading(as.character(format(d$timestamp, "%l %p")))
+
+  d$north <- grepl("N", d$detector_id)
+  d$express_lane <- grepl("-EL", d$lane_id)
+  d[grep("DS-00", d$detector_id), c("day_of_week",
+                                    "hour_of_day",
+                                    "north",
+                                    "express_lane",
+                                    "speed")]
 }
 
