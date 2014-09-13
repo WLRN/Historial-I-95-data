@@ -1,0 +1,9 @@
+#title-header {
+ background-color: blue;
+ outline: #000000 solid thin;
+}
+
+#selectors {
+  padding-left:2em;
+  background-color: grey;
+}

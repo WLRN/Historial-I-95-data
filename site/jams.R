@@ -1,8 +1,7 @@
 output$jam_probability <- renderPlot({
   if(is.null(input$day_of_week) |
        is.null(input$time_of_day) |
-       is.null(input$direction) |
-       is.null(input$color_scheme))
+       is.null(input$direction))
     return()
   input_data <- subset(munged_data,
                        day_of_week == input$day_of_week &
@@ -25,7 +24,7 @@ output$jam_probability <- renderPlot({
     geom_tile(aes(fill = Freq), colour = "black", size = 2) +
     geom_text(size = 30) +
     facet_grid(express_lane ~ ., scales = "free_y") +
-    scale_fill_gradient_tableau(input$color_scheme) +
+    scale_fill_gradient_tableau("Red") +
     theme_fivethirtyeight(base_size = 30) +
     theme(legend.position = "none",
           strip.text = element_blank()) +
