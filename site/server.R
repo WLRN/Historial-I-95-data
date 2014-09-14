@@ -1,8 +1,8 @@
 require(shiny)
 require(eotr)
 require(data.table)
-require(ggplot2); require(ggthemes)
+require(ggplot2); require(ggthemes); require(ggtern)
+rds <- connect_db()
 shinyServer(function(session, input, output) {
-  load("site_data.rda")
-  source("jams.R", local = T)
+  source("ternary.R", local = T)
 })

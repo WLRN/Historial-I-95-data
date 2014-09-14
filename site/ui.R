@@ -35,8 +35,19 @@ shinyUI(
                 )
             ), hr(),
             tabsetPanel(
-              tabPanel("Jam Probability",
-                       plotOutput("jam_probability")
+              tabPanel("Ternary Plot",
+                       column(2,
+                              HTML("")
+                       ),
+                       column(7,
+                              plotOutput("ternary_plot", height = 600)
+                       )
+              ),
+              tabPanel("Speed and Occupancy",
+                       HTML("Hello!")
+              ),
+              tabPanel("Summary",
+                       HTML("Hello!")
               )
             )
   )

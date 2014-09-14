@@ -9,11 +9,13 @@ munge_data <- function(input_data) {
   d$hour_of_day <- trim.leading(as.character(format(d$timestamp, "%l %p")))
 
   d$north <- grepl("N", d$detector_id)
-  d$express_lane <- grepl("-EL", d$lane_id)
+  d$express_lane <- (grepl("EL", d$lane_id) | grepl("ML", d$lane_id))
   d[grep("DS-00", d$detector_id), c("day_of_week",
                                     "hour_of_day",
                                     "north",
                                     "express_lane",
-                                    "speed")]
+                                    "speed",
+                                    "occupancy",
+                                    "volume")]
 }
 
